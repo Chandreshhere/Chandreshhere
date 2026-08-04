@@ -86,8 +86,18 @@ def probe_aspect(src: Path) -> float:
         return 9 / 16
 
 
+def crop_filter(top: float, bottom: float, left: float, right: float) -> str:
+    """ffmpeg crop expression from percentages, or '' if nothing to crop."""
+    if not any((top, bottom, left, right)):
+        return ""
+    w = f"iw*{(100 - left - right) / 100:.6f}"
+    h = f"ih*{(100 - top - bottom) / 100:.6f}"
+    return f"crop={w}:{h}:iw*{left / 100:.6f}:ih*{top / 100:.6f},"
+
+
 def extract_frames(src: Path, tmp: Path, cols: int, rows: int, fps: float,
-                   start: float | None, duration: float | None) -> list[Path]:
+                   start: float | None, duration: float | None,
+                   crop: str = "") -> list[Path]:
     cmd = ["ffmpeg", "-v", "error", "-y"]
     if start:
         cmd += ["-ss", str(start)]
@@ -99,7 +109,7 @@ def extract_frames(src: Path, tmp: Path, cols: int, rows: int, fps: float,
         # `rows` was already derived from the source aspect *and* the character
         # cell's 0.6:1.05 ratio, so one pixel == one character and the art comes
         # out correctly proportioned once it's rendered as text.
-        "-vf", f"fps={fps},scale={cols}:{rows}:flags=area,format=gray",
+        "-vf", f"fps={fps},{crop}scale={cols}:{rows}:flags=area,format=gray",
         str(tmp / "f%05d.png"),
     ]
     run(cmd)
@@ -224,7 +234,20 @@ def main() -> int:
                    help="for light art on a light source")
     p.add_argument("--glow", action="store_true", help="CRT bloom")
     p.add_argument("--title", default="ascii animation")
+    p.add_argument("--crop-top", type=float, default=0, metavar="PCT",
+                   help="chop this %% off the top — burnt-in captions turn into "
+                        "noise once they're rendered as characters")
+    p.add_argument("--crop-bottom", type=float, default=0, metavar="PCT")
+    p.add_argument("--crop-left", type=float, default=0, metavar="PCT")
+    p.add_argument("--crop-right", type=float, default=0, metavar="PCT")
     a = p.parse_args()
+
+    for name, v in (("--crop-top", a.crop_top), ("--crop-bottom", a.crop_bottom),
+                    ("--crop-left", a.crop_left), ("--crop-right", a.crop_right)):
+        if not 0 <= v < 100:
+            sys.exit(f"{name} must be between 0 and 100, got {v}")
+    if a.crop_top + a.crop_bottom >= 100 or a.crop_left + a.crop_right >= 100:
+        sys.exit("crop percentages leave nothing of the frame")
 
     for tool in ("ffmpeg", "ffprobe"):
         if not shutil.which(tool):
@@ -243,8 +266,15 @@ def main() -> int:
             if not src.exists():
                 sys.exit(f"no such file: {src}")
 
-        rows = max(4, round(a.cols * probe_aspect(src) * (CHAR_W / LINE_H)))
-        paths = extract_frames(src, tmp, a.cols, rows, a.fps, a.start, a.duration)
+        # The crop changes the aspect, so fold it in before deriving rows —
+        # otherwise the art comes out stretched along one axis.
+        keep_h = (100 - a.crop_top - a.crop_bottom) / 100
+        keep_w = (100 - a.crop_left - a.crop_right) / 100
+        aspect = probe_aspect(src) * keep_h / keep_w
+        rows = max(4, round(a.cols * aspect * (CHAR_W / LINE_H)))
+        crop = crop_filter(a.crop_top, a.crop_bottom, a.crop_left, a.crop_right)
+        paths = extract_frames(src, tmp, a.cols, rows, a.fps, a.start,
+                               a.duration, crop)
         if not paths:
             sys.exit("ffmpeg produced no frames — check --start/--duration")
 

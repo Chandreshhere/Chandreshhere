@@ -16,9 +16,18 @@
 <div align="center">
 
 <!-- ── ASCII HERO ──────────────────────────────────────────────────
-     Built by tools/ascii_svg.py. Swap in any clip you like:
-       python3 tools/ascii_svg.py reel.mp4 -o assets/hero.svg \
-         --cols 120 --theme violet --glow                        -->
+     Same Luffy clip as the About slot, rendered as characters.
+     Regenerate with:
+       python3 tools/ascii_svg.py "~/Desktop/lyffy video.mp4" \
+         -o assets/hero.svg --cols 120 --fps 12 --duration 5.1 \
+         --charset classic --contrast 1.9 --gamma 1.1 \
+         --theme violet --glow --crop-top 8 --crop-bottom 20
+
+     Two settings matter here. --crop-top 8 removes the burnt-in caption,
+     which would otherwise be rendered as meaningless characters. And
+     --charset classic (10 tonal steps) instead of blocks (5) — the dark
+     foliage has too little luminance range for a short ramp, which
+     flattened the whole frame into solid blobs. -->
 <img src="./assets/hero.svg" width="100%" alt="">
 
 <br><br>
