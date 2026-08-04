@@ -16,20 +16,20 @@
 <div align="center">
 
 <!-- ── ASCII HERO ──────────────────────────────────────────────────
-     Source: ~/Desktop/top.mp4, coloured from the footage itself rather
-     than tinted with a theme gradient. Regenerate with:
+     Source: ~/Desktop/top.mp4, as an ASCII-art GIF. Regenerate with:
 
-       python3 tools/ascii_svg.py ~/Desktop/top.mp4 -o assets/hero-color.svg \
-         --cols 90 --fps 6 --duration 5.4 --charset blocks \
-         --contrast 1.45 --color --color-levels 6 --saturation 1.6 \
-         --bg "#0a0a0a" --crop-bottom 22
+       python3 tools/ascii_gif.py ~/Desktop/top.mp4 -o assets/hero.gif \
+         --cols 100 --fps 12 --duration 5.4 --font-size 10 \
+         --charset blocks --colors 96 --crop-bottom 22
 
-     --color-levels 6 is not arbitrary: 6 levels land on repeated-nibble
-     bytes (00/33/66/99/cc/ff), so every colour writes as 3-digit hex and
-     the file gets meaningfully smaller. --saturation 1.6 compensates for
-     how washed-out video looks once it's characters on black.
+     GIF, not SVG, on purpose. An SVG stores every colour change as its own
+     DOM node, so full-colour ASCII ran to ~23k elements — which forced a
+     choice between colour depth, framerate and the page staying responsive.
+     A GIF is decoded natively: 12fps and 96 colours cost nothing at render
+     time. tools/ascii_svg.py is still there for crisp-at-any-zoom text.
+
      --duration 5.4 stops before the source cuts to unrelated static. -->
-<img src="./assets/hero-color.svg" width="100%" alt="">
+<img src="./assets/hero.gif" width="100%" alt="">
 
 <br><br>
 
