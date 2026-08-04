@@ -104,6 +104,11 @@ def main() -> int:
     p.add_argument("--gamma", type=float, default=1.0)
     p.add_argument("--saturation", type=float, default=1.35)
     p.add_argument("--invert", action="store_true")
+    p.add_argument("--vivid", action="store_true",
+                   help="scale each cell's colour up to full brightness. The "
+                        "character glyph already carries luminance, so without "
+                        "this the two multiply and everything muddies toward "
+                        "the background colour")
     p.add_argument("--bg", default="#0a0a0a")
     p.add_argument("--crop-top", type=float, default=0, metavar="PCT")
     p.add_argument("--crop-bottom", type=float, default=0, metavar="PCT")
@@ -158,7 +163,10 @@ def main() -> int:
 
         lut = build_lut(CHARSETS[a.charset], a.invert, a.gamma)
         W, H = a.cols * cell_w, rows * cell_h
-        blank = CHARSETS[a.charset][0]
+        # Only a literal space is skippable. A ramp like "solid" starts with a
+        # filled glyph, and treating that as blank would skip every cell.
+        ramp0 = CHARSETS[a.charset][0]
+        blank = ramp0 if ramp0 == " " else None
 
         frames = []
         for path in paths:
@@ -181,12 +189,18 @@ def main() -> int:
                     if ch == blank:
                         x += 1
                         continue
-                    col = cp[x, y]
+                    raw = cp[x, y]          # batch on the source colour...
+                    col = raw
+                    if a.vivid:
+                        m = max(col)
+                        if m:
+                            col = tuple(min(255, c * 255 // m) for c in col)
                     buf = [ch]
                     k = x + 1
-                    while k < a.cols and cp[k, y] == col and lut[lp[k, y]] != blank:
+                    while k < a.cols and cp[k, y] == raw and lut[lp[k, y]] != blank:
                         buf.append(lut[lp[k, y]])
                         k += 1
+                    # ...but paint with the adjusted one.
                     d.text((x * cell_w, y * cell_h), "".join(buf), font=font, fill=col)
                     x = k
             frames.append(canvas)

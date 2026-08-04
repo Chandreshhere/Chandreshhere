@@ -16,17 +16,21 @@
 <div align="center">
 
 <!-- ── ASCII HERO ──────────────────────────────────────────────────
-     Source: ~/Desktop/top.mp4, as an ASCII-art GIF. Regenerate with:
+     Source: ~/Desktop/top.mp4. Regenerate with:
 
        python3 tools/ascii_gif.py ~/Desktop/top.mp4 -o assets/hero.gif \
-         --cols 100 --fps 12 --duration 5.4 --font-size 10 \
-         --charset blocks --colors 96 --crop-bottom 22
+         --cols 110 --fps 12 --duration 5.4 --font-size 10 \
+         --charset solid --colors 160 --crop-bottom 22
 
-     GIF, not SVG, on purpose. An SVG stores every colour change as its own
-     DOM node, so full-colour ASCII ran to ~23k elements — which forced a
-     choice between colour depth, framerate and the page staying responsive.
-     A GIF is decoded natively: 12fps and 96 colours cost nothing at render
-     time. tools/ascii_svg.py is still there for crisp-at-any-zoom text.
+     --charset solid matters for colour fidelity. Partially-filled glyphs
+     (the default ░▒▓) blend with the background, so brightness gets encoded
+     twice — once by the glyph, again by the fill — and everything muddies
+     toward sepia. Solid cells let colour carry the image untouched, and the
+     character grid still shows as scanlines.
+
+     GIF rather than SVG: an SVG makes every colour change a DOM node, which
+     capped full-colour ASCII at ~23k elements and forced low framerate and
+     a tiny palette. tools/ascii_svg.py remains for crisp-at-any-zoom text.
 
      --duration 5.4 stops before the source cuts to unrelated static. -->
 <img src="./assets/hero.gif" width="100%" alt="">
