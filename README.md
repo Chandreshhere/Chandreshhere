@@ -16,18 +16,16 @@
 <div align="center">
 
 <!-- ── ASCII HERO ──────────────────────────────────────────────────
-     Same Luffy clip as the About slot, rendered as characters.
-     Regenerate with:
-       python3 tools/ascii_svg.py "~/Desktop/lyffy video.mp4" \
-         -o assets/hero.svg --cols 120 --fps 12 --duration 5.1 \
-         --charset classic --contrast 1.9 --gamma 1.1 \
-         --theme violet --glow --crop-top 8 --crop-bottom 20
+     Source: ~/Desktop/top.mp4. Regenerate with:
+       python3 tools/ascii_svg.py ~/Desktop/top.mp4 -o assets/hero.svg \
+         --cols 120 --fps 10 --duration 5.4 --charset blocks \
+         --contrast 1.6 --gamma 1.0 --theme violet --glow --crop-bottom 22
 
-     Two settings matter here. --crop-top 8 removes the burnt-in caption,
-     which would otherwise be rendered as meaningless characters. And
-     --charset classic (10 tonal steps) instead of blocks (5) — the dark
-     foliage has too little luminance range for a short ramp, which
-     flattened the whole frame into solid blobs. -->
+     --duration 5.4 is deliberate: the source cuts to black at ~5.5s and
+     then to unrelated green/blue static, so the loop stops before that.
+     --charset blocks (5 tonal steps) beats the finer ramps here because
+     the subject is high-contrast against a flat background — the short
+     ramp keeps the silhouette solid where a long one just adds noise. -->
 <img src="./assets/hero.svg" width="100%" alt="">
 
 <br><br>
