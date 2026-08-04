@@ -52,11 +52,11 @@
      into the gap beside it.
      ══════════════════════════════════════════════════════════════ -->
 
-<!-- Source: lyffy.jpeg. Top 8% cropped to remove the burnt-in
+<!-- Source: "lyffy video.mp4". Top 8% cropped to remove the burnt-in
      "Luffy comiendo" caption — 5% left emoji fragments along the top edge.
      Then squared, quantised to 48 colours and nearest-neighbour upscaled so
      the pixels stay hard-edged. -->
-<img align="right" width="340" src="./assets/luffy.png" alt="">
+<img align="right" width="340" src="./assets/luffy.gif" alt="">
 
 ### About
 
