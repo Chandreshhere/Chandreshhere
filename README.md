@@ -2,15 +2,15 @@
   Chandresh Delwar — profile README
   Lives at github.com/Chandreshhere/Chandreshhere
 
-  Fill placeholders in one command:
-      ./tools/set-username.sh <github-username> <linkedin-handle> <email>
-
   What GitHub's sanitiser allows here:
     OK    <img> <a> <div align> <picture> <details> <table> <br> animated GIF
           animated SVG (its CSS lives inside the .svg, out of reach)
     GONE  <script> <video> <iframe> <style> class= onclick=
 
   Accent is #7C3AED end to end — hero, typing header, every stat card.
+
+  SECTION ORDER (top to bottom):
+    hero → header → about+video → dashboard → snake → stack → work → details
 -->
 
 <div align="center">
@@ -31,10 +31,9 @@
 
 <br>
 
-<!-- All three on ONE source line on purpose. GitHub treats a line break
-     between block-level anchors as a paragraph split, which stacks the
-     badges vertically instead of sitting them in a row. -->
-<a href="https://www.chandreshhere.com"><img src="https://img.shields.io/badge/Portfolio-7C3AED?style=for-the-badge&logoColor=white" alt="Portfolio"></a> <a href="https://github.com/Chandreshhere"><img src="https://img.shields.io/badge/GitHub-18181B?style=for-the-badge&logo=github&logoColor=A78BFA" alt="GitHub"></a>
+<!-- Portfolio only. The GitHub badge was removed — it linked to the page
+     the visitor is already standing on. -->
+<a href="https://www.chandreshhere.com"><img src="https://img.shields.io/badge/Portfolio-7C3AED?style=for-the-badge&logoColor=white" alt="Portfolio"></a>
 
 <!-- LinkedIn + email are held back until the handles are filled in — a live
      badge pointing at linkedin.com/in/__LINKEDIN__ is worse than no badge.
@@ -44,14 +43,16 @@
 
 </div>
 
-<br>
+<br><br>
 
 <!-- ══════════════════════════════════════════════════════════════
-     ABOUT — three paragraphs compressed to one. Nobody reads
-     paragraph three on a profile README.
+     ABOUT — video sits on the right, text wraps around it.
+     `align="right"` is the only float GitHub's sanitiser keeps, and
+     <br clear="right"> is what stops the NEXT section from riding up
+     into the gap beside it.
      ══════════════════════════════════════════════════════════════ -->
 
-<img align="right" width="300" src="./assets/idle.gif" alt="">
+<img align="right" width="340" src="./assets/idle.gif" alt="">
 
 ### About
 
@@ -69,61 +70,18 @@ design  →  motion  →  code  →  ship
 
 <br clear="right">
 
-<!-- ══════════════════════════════════════════════════════════════
-     STACK — your draft listed these twice ("Tech Stack" and "My
-     Toolbox" are the same list). Once, as icons, reads far better
-     than thirty bullet points.
-     ══════════════════════════════════════════════════════════════ -->
-
-<div align="center">
-
-### Stack
-
-<img src="https://skillicons.dev/icons?i=react,nextjs,ts,js,html,css,tailwind&theme=dark" alt="">
 <br>
-<img src="https://skillicons.dev/icons?i=figma,git,github,vscode,vercel,nodejs&theme=dark" alt="">
-
-<br>
-
-**Motion** &nbsp;·&nbsp; GSAP &nbsp;·&nbsp; ScrollTrigger &nbsp;·&nbsp; SplitText &nbsp;·&nbsp; Framer Motion &nbsp;·&nbsp; Lenis
-<br>
-**State &amp; Data** &nbsp;·&nbsp; Zustand &nbsp;·&nbsp; Axios
-<br>
-**Design** &nbsp;·&nbsp; UI &nbsp;·&nbsp; UX &nbsp;·&nbsp; Wireframing &nbsp;·&nbsp; Prototyping &nbsp;·&nbsp; Design Systems
-
-</div>
 
 <!-- ══════════════════════════════════════════════════════════════
-     PROJECTS — link them. An unlinked project list reads as
-     aspiration; a linked one reads as evidence. Point each at a
-     real repo (or delete the row until it exists).
-     ══════════════════════════════════════════════════════════════ -->
+     DASHBOARD — moved up, directly under About.
 
-### Featured Work
+     One palette across every card: same bg, same accent, same
+     borderless treatment, so the widgets read as one panel rather
+     than four bolted-on services.
 
-<!-- These are four of your real repos that already have live Vercel
-     deployments. I have NOT written descriptions for them, because I don't
-     know what they are and inventing copy for your own projects would be
-     worse than leaving it blank. Replace each "..." with one honest line,
-     and swap in different repos if these aren't your strongest.
-
-     Other deployed repos to choose from: ciao-2.0, icon-reality, evara,
-     closet-web, ninehauk, digexa, nestinwoods, lexops, cleanse-new,
-     circle-media, ud-store, softcorner, artisan---co, namanmusic. -->
-
-| | |
-|---|---|
-| **[syncquic](https://github.com/Chandreshhere/syncquic)** · [live ↗](https://synquic.vercel.app)<br><sub>...</sub> | **[roccia](https://github.com/Chandreshhere/roccia-new)** · [live ↗](https://roccia-new.vercel.app)<br><sub>...</sub> |
-| **[underdawg brand portal](https://github.com/Chandreshhere/underdawg-brand-portal)** · [live ↗](https://underdawg-brand-portal.vercel.app)<br><sub>...</sub> | **[wow](https://github.com/Chandreshhere/wow)** · [live ↗](https://wow-sigma-one.vercel.app)<br><sub>...</sub> |
-
-<!-- ══════════════════════════════════════════════════════════════
-     DASHBOARD — one palette across every card. This is the single
-     biggest visual upgrade over the draft: same bg, same accent,
-     same borderless treatment, so four widgets read as one panel.
-
-     NOTE: github-readme-stats.vercel.app (the URL in your draft)
-     returns 503 most days — shared Vercel quota, exhausted. The
-     mirror below responds. Permanent fix in SETUP.md §7.
+     NOTE: github-readme-stats.vercel.app returns 503 most days
+     (shared Vercel quota, exhausted). The mirror below responds.
+     Permanent fix in SETUP.md §7.
      ══════════════════════════════════════════════════════════════ -->
 
 <div align="center">
@@ -140,7 +98,11 @@ design  →  motion  →  code  →  ship
 <img width="49%" src="https://github-readme-stats-sigma-five.vercel.app/api?username=Chandreshhere&show_icons=true&hide_border=true&bg_color=0A0A0F&title_color=7C3AED&icon_color=A78BFA&text_color=A1A1AA&ring_color=7C3AED&include_all_commits=true&rank_icon=github&custom_title=GitHub%20Stats" alt="">
 <img width="49%" src="https://streak-stats.demolab.com?user=Chandreshhere&hide_border=true&background=0A0A0F&stroke=27272A&ring=7C3AED&fire=A78BFA&currStreakLabel=7C3AED&sideLabels=A1A1AA&dates=52525B&currStreakNum=FAFAFA&sideNums=FAFAFA" alt="">
 
+<br><br>
+
 <img width="99%" src="https://github-readme-activity-graph.vercel.app/graph?username=Chandreshhere&bg_color=0A0A0F&color=FAFAFA&line=7C3AED&point=A78BFA&area=true&area_color=1E1B2E&hide_border=true&custom_title=Contribution%20Graph" alt="">
+
+<br><br>
 
 <img width="42%" src="https://github-readme-stats-sigma-five.vercel.app/api/top-langs/?username=Chandreshhere&layout=compact&langs_count=8&hide_border=true&bg_color=0A0A0F&title_color=7C3AED&text_color=A1A1AA&card_width=380" alt="">
 
@@ -160,12 +122,18 @@ design  →  motion  →  code  →  ship
      works on this service, so the grades are listed positively instead. -->
 <img width="99%" src="https://github-trophies.vercel.app/?username=Chandreshhere&theme=discord&no-frame=true&no-bg=true&column=7&margin-w=8&margin-h=8&rank=SECRET,SSS,SS,S,AAA,AA,A,B,C" alt="">
 
-<br>
+<br><br>
+
+<!-- ══════════════════════════════════════════════════════════════
+     SNAKE — moved up, straight after the dashboard. It's the same
+     contribution data the graph above shows, so the two belong
+     together rather than separated by the stack and project lists.
+     Generated by .github/workflows/snake.yml into the `output`
+     branch, refreshed every 12h.
+     ══════════════════════════════════════════════════════════════ -->
 
 ### Contribution Snake
 
-<!-- Generated by .github/workflows/snake.yml into the `output` branch.
-     It 404s until that workflow runs once — see SETUP.md §6. -->
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Chandreshhere/Chandreshhere/output/snake-dark.svg">
   <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/Chandreshhere/Chandreshhere/output/snake.svg">
@@ -185,17 +153,63 @@ design  →  motion  →  code  →  ship
 </a>
 -->
 
-<br>
+</div>
 
-<img src="https://komarev.com/ghpvc/?username=Chandreshhere&label=profile+views&color=7C3AED&style=flat-square" alt="">
+<br><br>
+
+<!-- ══════════════════════════════════════════════════════════════
+     STACK — your draft listed these twice ("Tech Stack" and "My
+     Toolbox" are the same list). Once, as icons, reads far better
+     than thirty bullet points.
+     ══════════════════════════════════════════════════════════════ -->
+
+<div align="center">
+
+### Stack
+
+<img src="https://skillicons.dev/icons?i=react,nextjs,ts,js,html,css,tailwind&theme=dark" alt="">
+<br>
+<img src="https://skillicons.dev/icons?i=figma,git,github,vscode,vercel,nodejs&theme=dark" alt="">
+
+<br><br>
+
+**Motion** &nbsp;·&nbsp; GSAP &nbsp;·&nbsp; ScrollTrigger &nbsp;·&nbsp; SplitText &nbsp;·&nbsp; Framer Motion &nbsp;·&nbsp; Lenis
+
+**State &amp; Data** &nbsp;·&nbsp; Zustand &nbsp;·&nbsp; Axios
+
+**Design** &nbsp;·&nbsp; UI &nbsp;·&nbsp; UX &nbsp;·&nbsp; Wireframing &nbsp;·&nbsp; Prototyping &nbsp;·&nbsp; Design Systems
 
 </div>
 
+<br><br>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PROJECTS — link them. An unlinked project list reads as
+     aspiration; a linked one reads as evidence.
+     ══════════════════════════════════════════════════════════════ -->
+
+### Featured Work
+
+<!-- These are four of your real repos that already have live Vercel
+     deployments. I have NOT written descriptions for them, because I don't
+     know what they are and inventing copy for your own projects would be
+     worse than leaving it blank. Replace each "..." with one honest line,
+     and swap in different repos if these aren't your strongest.
+
+     Other deployed repos to choose from: ciao-2.0, icon-reality, evara,
+     closet-web, ninehauk, digexa, nestinwoods, lexops, cleanse-new,
+     circle-media, ud-store, softcorner, artisan---co, namanmusic. -->
+
+| | |
+|---|---|
+| **[syncquic](https://github.com/Chandreshhere/syncquic)** · [live ↗](https://synquic.vercel.app)<br><sub>...</sub> | **[roccia](https://github.com/Chandreshhere/roccia-new)** · [live ↗](https://roccia-new.vercel.app)<br><sub>...</sub> |
+| **[underdawg brand portal](https://github.com/Chandreshhere/underdawg-brand-portal)** · [live ↗](https://underdawg-brand-portal.vercel.app)<br><sub>...</sub> | **[wow](https://github.com/Chandreshhere/wow)** · [live ↗](https://wow-sigma-one.vercel.app)<br><sub>...</sub> |
+
+<br>
+
 <!-- ══════════════════════════════════════════════════════════════
      THE LONG LISTS — kept, but folded away. <details> is on
-     GitHub's allowlist and collapses by default, so the content
-     is still there for anyone who wants it without turning the
-     page into a wall of bullets.
+     GitHub's allowlist and collapses by default.
      ══════════════════════════════════════════════════════════════ -->
 
 <details>
@@ -232,13 +246,17 @@ performance, motion, typography, and attention to detail.
 
 </details>
 
-<br>
+<br><br>
 
 <div align="center">
 
 <img src="./assets/footer.svg" width="100%" alt="">
 
 <sub><i>"Design is how it works. Motion is how it feels. Code is how it comes alive."</i></sub>
+
+<br><br>
+
+<img src="https://komarev.com/ghpvc/?username=Chandreshhere&label=profile+views&color=7C3AED&style=flat-square" alt="">
 
 <br><br>
 
