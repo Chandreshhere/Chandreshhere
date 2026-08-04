@@ -19,8 +19,8 @@
      Source: ~/Desktop/top.mp4, coloured from the footage itself rather
      than tinted with a theme gradient. Regenerate with:
 
-       python3 tools/ascii_svg.py ~/Desktop/top.mp4 -o assets/hero.svg \
-         --cols 100 --fps 8 --duration 5.4 --charset blocks \
+       python3 tools/ascii_svg.py ~/Desktop/top.mp4 -o assets/hero-color.svg \
+         --cols 90 --fps 6 --duration 5.4 --charset blocks \
          --contrast 1.45 --color --color-levels 6 --saturation 1.6 \
          --bg "#0a0a0a" --crop-bottom 22
 
@@ -29,7 +29,7 @@
      the file gets meaningfully smaller. --saturation 1.6 compensates for
      how washed-out video looks once it's characters on black.
      --duration 5.4 stops before the source cuts to unrelated static. -->
-<img src="./assets/hero.svg" width="100%" alt="">
+<img src="./assets/hero-color.svg" width="100%" alt="">
 
 <br><br>
 
