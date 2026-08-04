@@ -53,7 +53,23 @@ def main() -> int:
                    help="0-5; higher = coarser, more retro dither pattern")
     p.add_argument("--boomerang", action="store_true",
                    help="play forward then reverse so the loop never cuts")
+    p.add_argument("--crop-top", type=float, default=0, metavar="PCT",
+                   help="chop this %% off the top — use it to cut burnt-in "
+                        "titles or captions out of the frame")
+    p.add_argument("--crop-bottom", type=float, default=0, metavar="PCT")
+    p.add_argument("--crop-left", type=float, default=0, metavar="PCT")
+    p.add_argument("--crop-right", type=float, default=0, metavar="PCT")
+    p.add_argument("--square", action="store_true",
+                   help="centre-crop to 1:1, which is the shape the README's "
+                        "About slot expects")
     a = p.parse_args()
+
+    for name, v in (("--crop-top", a.crop_top), ("--crop-bottom", a.crop_bottom),
+                    ("--crop-left", a.crop_left), ("--crop-right", a.crop_right)):
+        if not 0 <= v < 100:
+            sys.exit(f"{name} must be between 0 and 100, got {v}")
+    if a.crop_top + a.crop_bottom >= 100 or a.crop_left + a.crop_right >= 100:
+        sys.exit("crop percentages leave nothing of the frame")
 
     if not shutil.which("ffmpeg"):
         sys.exit("ffmpeg not found — brew install ffmpeg")
@@ -63,6 +79,16 @@ def main() -> int:
 
     grade = GRADES[a.grade]
     chain = [f"fps={a.fps}"]
+
+    # Crop first, before anything else touches the frame — cropping after the
+    # downscale would just throw away pixels we already paid to compute.
+    if any((a.crop_top, a.crop_bottom, a.crop_left, a.crop_right)):
+        w = f"iw*{(100 - a.crop_left - a.crop_right) / 100:.6f}"
+        h = f"ih*{(100 - a.crop_top - a.crop_bottom) / 100:.6f}"
+        chain.append(f"crop={w}:{h}:iw*{a.crop_left / 100:.6f}:ih*{a.crop_top / 100:.6f}")
+    if a.square:
+        chain.append("crop='min(iw,ih)':'min(iw,ih)'")
+
     if grade:
         chain.append(grade)
     # Down to a tiny buffer with area averaging, then back up with nearest
