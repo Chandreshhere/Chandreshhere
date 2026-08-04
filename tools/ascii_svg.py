@@ -109,19 +109,16 @@ def extract_frames(src: Path, tmp: Path, cols: int, rows: int, fps: float,
         # `rows` was already derived from the source aspect *and* the character
         # cell's 0.6:1.05 ratio, so one pixel == one character and the art comes
         # out correctly proportioned once it's rendered as text.
-        "-vf", f"fps={fps},{crop}scale={cols}:{rows}:flags=area,format=gray",
+        # rgb24, not gray: colour mode needs the source hue per cell, and mono
+        # mode just derives luminance from it.
+        "-vf", f"fps={fps},{crop}scale={cols}:{rows}:flags=area,format=rgb24",
         str(tmp / "f%05d.png"),
     ]
     run(cmd)
     return sorted(tmp.glob("f*.png"))
 
 
-def frame_to_rows(path: Path, ramp: str, invert: bool, contrast: float,
-                  gamma: float) -> list[str]:
-    img = Image.open(path).convert("L")
-    if contrast != 1.0:
-        img = ImageEnhance.Contrast(img).enhance(contrast)
-
+def build_lut(ramp: str, invert: bool, gamma: float) -> list[str]:
     n = len(ramp) - 1
     lut = []
     for v in range(256):
@@ -129,19 +126,78 @@ def frame_to_rows(path: Path, ramp: str, invert: bool, contrast: float,
         if invert:
             x = 1.0 - x
         lut.append(ramp[min(n, max(0, round(x * n)))])
+    return lut
 
-    px = img.load()
-    w, h = img.size
-    return ["".join(lut[px[x, y]] for x in range(w)) for y in range(h)]
+
+def quantise(rgb: tuple[int, int, int], levels: int) -> str:
+    """Snap a colour to a fixed lattice.
+
+    Deliberately not PIL's adaptive quantiser: a per-frame optimal palette
+    shifts between frames and the whole image crawls. A fixed lattice maps
+    every frame the same way, so colours stay put.
+
+    When (levels-1) divides 15, every channel value lands on a repeated-nibble
+    byte (0x00/0x11/.../0xff), so the colour is expressible as 3-digit hex.
+    That's 3 bytes saved on every run, and runs are what this file is made of.
+    """
+    s = levels - 1
+    v = [round(c / 255 * s) * 255 // s for c in rgb]
+    if 15 % s == 0:
+        return "#%x%x%x" % (v[0] >> 4, v[1] >> 4, v[2] >> 4)
+    return "#%02x%02x%02x" % tuple(v)
+
+
+def frame_to_rows(path: Path, ramp: str, invert: bool, contrast: float,
+                  gamma: float, color: bool = False, levels: int = 5,
+                  saturation: float = 1.0):
+    """Mono -> list[str]. Colour -> list of [(text, hexcolour), ...] runs."""
+    rgb = Image.open(path).convert("RGB")
+    if color and saturation != 1.0:
+        rgb = ImageEnhance.Color(rgb).enhance(saturation)
+
+    lum = rgb.convert("L")
+    if contrast != 1.0:
+        lum = ImageEnhance.Contrast(lum).enhance(contrast)
+
+    lut = build_lut(ramp, invert, gamma)
+    lp, cp = lum.load(), rgb.load()
+    w, h = lum.size
+
+    if not color:
+        return ["".join(lut[lp[x, y]] for x in range(w)) for y in range(h)]
+
+    blank = ramp[0]
+    rows = []
+    for y in range(h):
+        runs, buf, cur = [], [], None
+        for x in range(w):
+            ch = lut[lp[x, y]]
+            # A blank cell paints nothing, so its colour is irrelevant — let it
+            # ride on the current run instead of splitting one. This is the
+            # single biggest lever on output size.
+            col = cur if (ch == blank and cur is not None) else quantise(cp[x, y], levels)
+            if col != cur:
+                if buf:
+                    runs.append(("".join(buf), cur))
+                buf, cur = [ch], col
+            else:
+                buf.append(ch)
+        if buf:
+            runs.append(("".join(buf), cur))
+        rows.append(runs)
+    return rows
 
 
 def esc(s: str) -> str:
     return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
-def build_svg(frames: list[list[str]], cols: int, rows: int, theme: str,
-              font_size: float, dur: float, glow: bool, title: str) -> str:
+def build_svg(frames, cols: int, rows: int, theme: str,
+              font_size: float, dur: float, glow: bool, title: str,
+              color: bool = False, bg_override: str | None = None) -> str:
     bg, stops, glow_col = THEMES[theme]
+    if bg_override:
+        bg = bg_override
     pad = font_size * 1.2
     char_w = font_size * CHAR_W
     line_h = font_size * LINE_H
@@ -196,18 +252,31 @@ def build_svg(frames: list[list[str]], cols: int, rows: int, theme: str,
                "</style>")
     out.append(f'<rect width="100%" height="100%" fill="{bg}" rx="{font_size:.0f}"/>')
 
-    gopen = '<g fill="url(#ink)"' + (' filter="url(#glow)"' if glow else "") + ">"
-    out.append(gopen)
+    fill = "" if color else ' fill="url(#ink)"'
+    out.append("<g" + fill + (' filter="url(#glow)"' if glow else "") + ">")
 
     text_w = cols * char_w
     for i, rowlist in enumerate(frames):
         parts = [f'<text class="f f{i}" x="{pad:.1f}" y="{pad:.1f}" xml:space="preserve">']
         for j, line in enumerate(rowlist):
             dy = 0 if j == 0 else line_h
-            parts.append(
-                f'<tspan x="{pad:.1f}" dy="{dy:.2f}" textLength="{text_w:.1f}" '
-                f'lengthAdjust="spacingAndGlyphs">{esc(line)}</tspan>'
-            )
+            if not color:
+                parts.append(
+                    f'<tspan x="{pad:.1f}" dy="{dy:.2f}" textLength="{text_w:.1f}" '
+                    f'lengthAdjust="spacingAndGlyphs">{esc(line)}</tspan>'
+                )
+                continue
+            # Each run carries its own textLength so the grid stays locked to
+            # the same cell width no matter which mono font renders it.
+            # No lengthAdjust here — the default ("spacing") is right for a
+            # monospace grid, and dropping the attribute saves ~28 bytes on
+            # every single run, which dominates the file at this scale.
+            for k, (text, col) in enumerate(line):
+                pos = f'x="{pad:g}" dy="{dy:g}" ' if k == 0 else ""
+                parts.append(
+                    f'<tspan {pos}fill="{col}" textLength="{len(text) * char_w:g}"'
+                    f'>{esc(text)}</tspan>'
+                )
         parts.append("</text>")
         out.append("".join(parts))
 
@@ -240,7 +309,20 @@ def main() -> int:
     p.add_argument("--crop-bottom", type=float, default=0, metavar="PCT")
     p.add_argument("--crop-left", type=float, default=0, metavar="PCT")
     p.add_argument("--crop-right", type=float, default=0, metavar="PCT")
+    p.add_argument("--color", action="store_true",
+                   help="colour each character from the source instead of "
+                        "painting the whole frame with the theme gradient")
+    p.add_argument("--color-levels", type=int, default=5, metavar="N",
+                   help="quantisation steps per RGB channel (2-16). Lower "
+                        "means longer same-colour runs and a much smaller file")
+    p.add_argument("--saturation", type=float, default=1.5,
+                   help="colour mode only — video washes out once it's "
+                        "characters on black, so this lifts it back up")
+    p.add_argument("--bg", metavar="HEX", help="override the theme background")
     a = p.parse_args()
+
+    if not 2 <= a.color_levels <= 16:
+        sys.exit(f"--color-levels must be 2-16, got {a.color_levels}")
 
     for name, v in (("--crop-top", a.crop_top), ("--crop-bottom", a.crop_bottom),
                     ("--crop-left", a.crop_left), ("--crop-right", a.crop_right)):
@@ -279,10 +361,12 @@ def main() -> int:
             sys.exit("ffmpeg produced no frames — check --start/--duration")
 
         ramp = CHARSETS[a.charset]
-        frames = [frame_to_rows(f, ramp, a.invert, a.contrast, a.gamma) for f in paths]
+        frames = [frame_to_rows(f, ramp, a.invert, a.contrast, a.gamma,
+                                a.color, a.color_levels, a.saturation)
+                  for f in paths]
 
         svg = build_svg(frames, a.cols, rows, a.theme, a.font_size,
-                        len(frames) / a.fps, a.glow, a.title)
+                        len(frames) / a.fps, a.glow, a.title, a.color, a.bg)
 
         out = Path(a.out).expanduser()
         out.parent.mkdir(parents=True, exist_ok=True)

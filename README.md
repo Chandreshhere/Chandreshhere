@@ -16,16 +16,19 @@
 <div align="center">
 
 <!-- ── ASCII HERO ──────────────────────────────────────────────────
-     Source: ~/Desktop/top.mp4. Regenerate with:
-       python3 tools/ascii_svg.py ~/Desktop/top.mp4 -o assets/hero.svg \
-         --cols 120 --fps 10 --duration 5.4 --charset blocks \
-         --contrast 1.6 --gamma 1.0 --theme violet --glow --crop-bottom 22
+     Source: ~/Desktop/top.mp4, coloured from the footage itself rather
+     than tinted with a theme gradient. Regenerate with:
 
-     --duration 5.4 is deliberate: the source cuts to black at ~5.5s and
-     then to unrelated green/blue static, so the loop stops before that.
-     --charset blocks (5 tonal steps) beats the finer ramps here because
-     the subject is high-contrast against a flat background — the short
-     ramp keeps the silhouette solid where a long one just adds noise. -->
+       python3 tools/ascii_svg.py ~/Desktop/top.mp4 -o assets/hero.svg \
+         --cols 100 --fps 8 --duration 5.4 --charset blocks \
+         --contrast 1.45 --color --color-levels 6 --saturation 1.6 \
+         --bg "#0a0a0a" --crop-bottom 22
+
+     --color-levels 6 is not arbitrary: 6 levels land on repeated-nibble
+     bytes (00/33/66/99/cc/ff), so every colour writes as 3-digit hex and
+     the file gets meaningfully smaller. --saturation 1.6 compensates for
+     how washed-out video looks once it's characters on black.
+     --duration 5.4 stops before the source cuts to unrelated static. -->
 <img src="./assets/hero.svg" width="100%" alt="">
 
 <br><br>
